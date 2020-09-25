@@ -1,0 +1,104 @@
+---
+# tasks file for xilinxtestoperator
+- name: Run driver container job
+  k8s:
+    state: present
+    definition:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: xilinx-driver-container-job
+        namespace: '{{ ansible_operator_meta.namespace }}'
+      spec:
+        template:
+          spec:
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                        - key: "feature.node.kubernetes.io/kernel-version.full"
+                          operator: In
+                          values:
+                            - "{{ affinity_kernel_version }}"
+            restartPolicy: Never
+            containers:
+              - name: xilinx-driver-container-job
+                image: "{{ driver_container }}"
+                restartPolicy: Never
+                securityContext:
+                  privileged: true
+                  capabilities:
+                    add:
+                      - ALL
+                volumeMounts:
+                  - mountPath: /lib/modules
+                    name: lib-modules
+            volumes:
+              - name: lib-modules
+                hostPath:
+                  path: /lib/modules
+                  type: Directory
+
+- name: Deploy FPGA device plugin as daemonset
+  k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: fpga-device-plugin-daemonset
+        namespace: '{{ ansible_operator_meta.namespace }}'
+      spec:
+        selector:
+          matchLabels:
+            name: xilinx-fpga-device-plugin
+        template:
+          metadata:
+            annotations:
+              scheduler.alpha.kubernetes.io/critical-pod: ""
+            labels:
+              name: xilinx-fpga-device-plugin
+          spec:
+            tolerations:
+            - key: CriticalAddonsOnly
+              operator: Exists
+            containers:
+            - image: xilinxatg/xilinx_k8s_fpga_plugin:latest
+              name: xilinx-fpga-device-plugin
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: device-plugin
+                  mountPath: /var/lib/kubelet/device-plugins
+            volumes:
+              - name: device-plugin
+                hostPath:
+                  path: /var/lib/kubelet/device-plugins
+
+- debug:
+    msg: "TODO: dynamically assign value to xilinx_resource and use as key in resources/limits"
+
+- name: Run example pod 
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: "{{ pod_name }}"
+        namespace: "{{ ansible_operator_meta.namespace }}"
+      spec:
+        containers:
+          - name: mypod
+            image: xilinxatg/fpga-verify:latest
+            resources:
+              limits:
+                xilinx.com/fpga-xilinx_vcu1525_dynamic_5_1-1521279439: 1
+            command: ["/bin/sh"]
+            args: ["-c", "while true; do echo hello; sleep 10;done"]
+            securityContext:
+              privileged: true
+

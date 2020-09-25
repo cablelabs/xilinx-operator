@@ -1,0 +1,8 @@
+domain: test.cablelabs.com
+layout: ansible.sdk.operatorframework.io/v1
+projectName: xilinx-operator-example
+resources:
+- group: xilinxtestoperators
+  kind: XilinxTestOperator
+  version: v1alpha1
+version: 3-alpha

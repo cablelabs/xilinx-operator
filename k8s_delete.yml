@@ -1,0 +1,49 @@
+- name: Remove Xilinx FPGA support in k8s
+  hosts: localhost
+  vars:
+    xilinx_resource: xilinx.com/fpga-xilinx_vcu1525_dynamic_5_1-1521279439
+    pod_name: xilinx-test-pod
+  tasks:
+
+    - name: run k8s proxy
+      shell: "kubectl proxy &"
+    
+    - name: Remove driver container job
+      k8s:
+        state: absent
+        kind: Job
+        namespace: default
+        name: xilinx-driver-container-job
+        
+    - name: Remove FPGA device plugin daemonset
+      k8s:
+        state: absent
+        kind: DaemonSet
+        namespace: default
+        name: fpga-device-plugin-daemonset
+
+    - name: Remove example user pod file
+      k8s:
+        state: absent
+        kind: Pod
+        namespace: default
+        name: "{{ pod_name }}"
+
+    - name: Remove xilinx capacity resource from node worker-0
+      uri:
+        url: http://localhost:8001/api/v1/nodes/worker-0.test.cablelabs.com/status
+        method: PATCH
+        body: '[{"op": "remove", "path": "/status/capacity/xilinx.com~1fpga-xilinx_vcu1525_dynamic_5_1-1521279439"}]'
+        headers:
+          Content-Type: "application/json-patch+json"
+
+    - name: Remove xilinx allocatable resource from node worker-0
+      uri:
+        url: http://localhost:8001/api/v1/nodes/worker-0.test.cablelabs.com/status
+        method: PATCH
+        body: '[{"op": "remove", "path": "/status/allocatable/xilinx.com~1fpga-xilinx_vcu1525_dynamic_5_1-1521279439"}]'
+        headers:
+          Content-Type: "application/json-patch+json"
+
+    - name: stop k8s proxy
+      shell: "killall kubectl"

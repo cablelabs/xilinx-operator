@@ -1,0 +1,7 @@
+apiVersion: xilinxtestoperators.test.cablelabs.com/v1alpha1
+kind: XilinxTestOperator
+metadata:
+  name: xilinxtestoperator-sample
+spec:
+  size: 1
+  ansible.operator-sdk/reconcile-period: "30s"
