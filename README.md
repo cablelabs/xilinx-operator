@@ -2,9 +2,7 @@
 
 This is a Phase I proof-of-concept/minimum viable product operator that installs the Xilinx FPGA driver(s) and [device plugin](https://github.com/Xilinx/FPGA_as_a_Service/tree/master/k8s-fpga-device-plugin/) on a specific cluster worker node configuration.
 
-⚠️ NOTES:
-
-- To work with an older FPGA, we need to use a particular kernel version with RHEL 7. The driver installation job can only run on a particular machine that matches the exact kernel version with the demo FPGA installed. See the ansible role [main vars file](xilinx-operator-example/roles/xilinxtestoperator/vars/main.yml) for the particular kernel and FPGA version supported.
+> ⚠️ NOTE: To work with an older FPGA, we need to use a particular kernel version with RHEL 7. The driver installation job can only run on a particular machine that matches the exact kernel version with the demo FPGA installed. See the ansible role [main vars file](xilinx-operator-example/roles/xilinxtestoperator/vars/main.yml) for the particular kernel and FPGA version supported.
 
 TODOs:
 
