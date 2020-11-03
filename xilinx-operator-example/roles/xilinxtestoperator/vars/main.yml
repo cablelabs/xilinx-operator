@@ -1,6 +1,5 @@
 ---
 # vars file for xilinxtestoperator
-xilinx_resource: xilinx.com/fpga-xilinx_vcu1525_dynamic_5_1-1521279439
+xilinx_resource: xilinx.com/fpga-xilinx_u200_xdma_201830_2-1561465320
 pod_name: xilinx-test-pod
 driver_container: cablelabs/adrenaline_xilinx-fpga-rhel7
-affinity_kernel_version: 3.10.0-957.21.2.el7.x86_64

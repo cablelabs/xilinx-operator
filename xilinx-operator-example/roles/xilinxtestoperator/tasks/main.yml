@@ -17,11 +17,15 @@
                 requiredDuringSchedulingIgnoredDuringExecution:
                   nodeSelectorTerms:
                     - matchExpressions:
-                        - key: "feature.node.kubernetes.io/kernel-version.full"
+                        - key: "feature.node.kubernetes.io/system-os_release.VERSION_ID.major"
                           operator: In
                           values:
-                            - "{{ affinity_kernel_version }}"
-            restartPolicy: Never
+                            - "7"
+                        - key: "feature.node.kubernetes.io/pci-10ee.present"
+                          operator: In
+                          values:
+                            - "true"
+            restartPolicy: OnFailure
             containers:
               - name: xilinx-driver-container-job
                 image: "{{ driver_container }}"
