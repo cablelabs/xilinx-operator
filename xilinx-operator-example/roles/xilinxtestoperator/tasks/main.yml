@@ -100,7 +100,7 @@
             image: xilinxatg/fpga-verify:latest
             resources:
               limits:
-                xilinx.com/fpga-xilinx_vcu1525_dynamic_5_1-1521279439: 1
+                xilinx.com/fpga-xilinx_u200_xdma_201830_2-1561465320: 1
             command: ["/bin/sh"]
             args: ["-c", "while true; do echo hello; sleep 10;done"]
             securityContext:
