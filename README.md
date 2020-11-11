@@ -89,7 +89,7 @@ kubectl exec -it xilinx-test-pod bash
 
 ```bash
 source /opt/xilinx/xrt/setup.sh
-xbutil flash scan
+xbutil list
 ```
 
 # Cleaning up
