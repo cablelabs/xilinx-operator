@@ -1,5 +1,7 @@
 ---
 # vars file for xilinxtestoperator
-xilinx_resource: xilinx.com/fpga-xilinx_u200_xdma_201830_2-1561465320
-pod_name: xilinx-test-pod
+
+card_ver: u200  # choices are "vcu1525" or "u200"
+
 driver_container: cablelabs/adrenaline_xilinx-fpga-rhel7
+example_pod_name: xilinx-test-pod

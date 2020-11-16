@@ -2,10 +2,11 @@
 
 This is a Phase I proof-of-concept/minimum viable product operator that installs the Xilinx FPGA driver(s) and [device plugin](https://github.com/Xilinx/FPGA_as_a_Service/tree/master/k8s-fpga-device-plugin/) on a specific cluster worker node configuration.
 
-TODOs:
+NOTES:
 
-- [ ] The extended resource resource limit for the example pod is hard-coded to a particular device name/version. This needs to be extracted automatically from the worker node description.
-- [ ] Automate the flashing of the development target platform to the FPGA card.
+* The extended resource limit for the example pod is hard-coded to a particular device name/version. In a real-world scenario this would be tied to the actual version used for the workload.
+* The flashing of the development target platform to the FPGA card is manual. The operator works under the assumption that the appropriate environment has already been flashed to the FPGA card.
+* The operator only supports RHEL7 worker nodes at this time.
 
 ## Prerequisites
 
@@ -38,6 +39,8 @@ Change to the operator directory:
 ```bash
 cd xilinx-operator-example/
 ```
+
+Edit the [roles/xilinxtestoperator/vars/main.yml](xilinx-operator-example/roles/xilinxtestoperator/vars/main.yml) file to correspond to the correct FPGA card version.
 
 Then, build and push the operator image:[^1]
 

@@ -29,6 +29,9 @@
             containers:
               - name: xilinx-driver-container-job
                 image: "{{ driver_container }}"
+                env:
+                  - name: CARD_VER
+                    value: '{{ card_ver }}'
                 restartPolicy: Never
                 securityContext:
                   privileged: true
@@ -82,17 +85,37 @@
                 hostPath:
                   path: /var/lib/kubelet/device-plugins
 
-- debug:
-    msg: "TODO: dynamically assign value to xilinx_resource and use as key in resources/limits"
-
-- name: Run example pod 
+- name: Run example pod
+  when: card_ver == "vcu1525"
   k8s:
     state: present
     definition:
       apiVersion: v1
       kind: Pod
       metadata:
-        name: "{{ pod_name }}"
+        name: "{{ example_pod_name }}"
+        namespace: "{{ ansible_operator_meta.namespace }}"
+      spec:
+        containers:
+          - name: mypod
+            image: xilinxatg/fpga-verify:latest
+            resources:
+              limits:
+                xilinx.com/fpga-xilinx_vcu1525_dynamic_5_1-1521279439: 1
+            command: ["/bin/sh"]
+            args: ["-c", "while true; do echo hello; sleep 10;done"]
+            securityContext:
+              privileged: true
+
+- name: Run example pod
+  when: card_ver == "u200"
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: "{{ example_pod_name }}"
         namespace: "{{ ansible_operator_meta.namespace }}"
       spec:
         containers:
@@ -105,4 +128,3 @@
             args: ["-c", "while true; do echo hello; sleep 10;done"]
             securityContext:
               privileged: true
-
