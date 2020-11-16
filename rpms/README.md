@@ -1,1 +1,0 @@
-These RPMs are pulled by the driver container and need to be publicly accessible.

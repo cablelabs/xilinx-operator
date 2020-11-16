@@ -5,3 +5,4 @@ metadata:
 spec:
   size: 1
   ansible.operator-sdk/reconcile-period: "30s"
+  card_ver: u200  # valid choices are "vcu5125" or "u200"

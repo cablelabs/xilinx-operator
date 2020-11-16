@@ -17,14 +17,21 @@
                 requiredDuringSchedulingIgnoredDuringExecution:
                   nodeSelectorTerms:
                     - matchExpressions:
-                        - key: "feature.node.kubernetes.io/kernel-version.full"
+                        - key: "feature.node.kubernetes.io/system-os_release.VERSION_ID.major"
                           operator: In
                           values:
-                            - "{{ affinity_kernel_version }}"
-            restartPolicy: Never
+                            - "7"
+                        - key: "feature.node.kubernetes.io/pci-10ee.present"
+                          operator: In
+                          values:
+                            - "true"
+            restartPolicy: OnFailure
             containers:
               - name: xilinx-driver-container-job
                 image: "{{ driver_container }}"
+                env:
+                  - name: CARD_VER
+                    value: '{{ card_ver }}'
                 restartPolicy: Never
                 securityContext:
                   privileged: true
@@ -78,17 +85,15 @@
                 hostPath:
                   path: /var/lib/kubelet/device-plugins
 
-- debug:
-    msg: "TODO: dynamically assign value to xilinx_resource and use as key in resources/limits"
-
-- name: Run example pod 
+- name: Run example pod
+  when: card_ver == "vcu1525"
   k8s:
     state: present
     definition:
       apiVersion: v1
       kind: Pod
       metadata:
-        name: "{{ pod_name }}"
+        name: "{{ example_pod_name }}"
         namespace: "{{ ansible_operator_meta.namespace }}"
       spec:
         containers:
@@ -102,3 +107,24 @@
             securityContext:
               privileged: true
 
+- name: Run example pod
+  when: card_ver == "u200"
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: "{{ example_pod_name }}"
+        namespace: "{{ ansible_operator_meta.namespace }}"
+      spec:
+        containers:
+          - name: mypod
+            image: xilinxatg/fpga-verify:latest
+            resources:
+              limits:
+                xilinx.com/fpga-xilinx_u200_xdma_201830_2-1561465320: 1
+            command: ["/bin/sh"]
+            args: ["-c", "while true; do echo hello; sleep 10;done"]
+            securityContext:
+              privileged: true

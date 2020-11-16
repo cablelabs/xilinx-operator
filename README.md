@@ -2,16 +2,17 @@
 
 This is a Phase I proof-of-concept/minimum viable product operator that installs the Xilinx FPGA driver(s) and [device plugin](https://github.com/Xilinx/FPGA_as_a_Service/tree/master/k8s-fpga-device-plugin/) on a specific cluster worker node configuration.
 
-> ⚠️ NOTE: To work with an older FPGA, we need to use a particular kernel version with RHEL 7. The driver installation job can only run on a particular machine that matches the exact kernel version with the demo FPGA installed. See the ansible role [main vars file](xilinx-operator-example/roles/xilinxtestoperator/vars/main.yml) for the particular kernel and FPGA version supported.
+NOTES:
 
-TODOs:
-
-- [ ] The extended resource resource limit for the example pod is hard-coded to a particular device name/version. This needs to be extracted automatically from the worker node description.
+* The extended resource limit for the example pod is hard-coded to a particular device name/version. In a real-world scenario this would be tied to the actual version used for the workload.
+* The flashing of the development target platform to the FPGA card is manual. The operator works under the assumption that the appropriate environment has already been flashed to the FPGA card.
+* The operator only supports RHEL7 worker nodes at this time.
 
 ## Prerequisites
 
 1. [operator-sdk](https://sdk.operatorframework.io/) installed
-2. (Optional): Docker installed to build and push images[^1]
+1. Firmware manually flashed to the FPGA card. This step is currently manual because it requires a *cold* reboot of the host machine.
+1. (Optional): Docker installed to build and push images[^1]
 
 ## Build driver container image[^1]
 
@@ -39,6 +40,8 @@ Change to the operator directory:
 cd xilinx-operator-example/
 ```
 
+Edit the [custom resource](xilinx-operator-example/config/samples/xilinxtestoperators_v1alpha1_xilinxtestoperator.yaml) file to correspond to the correct FPGA card version.
+
 Then, build and push the operator image:[^1]
 
 [^1]: Not necessary for demonstration purposes or if the driver container will not be modified.
@@ -63,6 +66,20 @@ Check the operator logs:[^2]
 kubectl -n xilinx-operator-example-system logs deployment.app/xilinx-operator-example-controller-manager manager
 ```
 
+Check to see if the pods are running:
+
+```
+kubectl get pods
+```
+
+You should see ` xilinx-driver-container-job-xxxxx` and `xilinx-test-pod`.
+
+Watch the driver container logs with:
+
+```
+kubectl logs xilinx-driver-container-job-xxxxx -f
+```
+
 ## Test the FPGA driver
 
 After everything is working, connect to the example pod...
@@ -75,7 +92,7 @@ kubectl exec -it xilinx-test-pod bash
 
 ```bash
 source /opt/xilinx/xrt/setup.sh
-xbutil flash scan
+xbutil list
 ```
 
 # Cleaning up
@@ -109,3 +126,7 @@ As there is no way to perform unit tests on the ansible code, iterating rapid de
 5. Repeat as necessary.
 
 [^2]: Just because the operator manager succeeded doesn't necessarily mean that the tasks completed successfully. Please check the logs of the pods that are launched by the operator to ensure that the driver was installed. For example, doing a `kubectl describe pod xilinx-driver-container-job-xxxxx` will let you know if the driver job has run or if it is pending due to taints or node selector mismatch.
+
+# Other Notes
+
+This is a useful command to verify hardware availability: `sudo lspci -vd 10ee:`
