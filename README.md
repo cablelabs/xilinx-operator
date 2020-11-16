@@ -96,7 +96,7 @@ curl --header "Content-Type: application/json-patch+json" \
 http://localhost:8001/api/v1/nodes/worker-0.test.cablelabs.com/status
 ```
 
-There is also an [ansible playbook](k8s_delete.yml) that will attempt to clean up after the operator is removed. This playbook assumes the pods were run int he default namespace.
+There is also an [ansible playbook](k8s_delete.yml) that will attempt to clean up after the operator is removed. This playbook assumes the pods were run in the default namespace.
 
 # Development workflow
 
