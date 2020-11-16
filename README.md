@@ -40,7 +40,7 @@ Change to the operator directory:
 cd xilinx-operator-example/
 ```
 
-Edit the [roles/xilinxtestoperator/vars/main.yml](xilinx-operator-example/roles/xilinxtestoperator/vars/main.yml) file to correspond to the correct FPGA card version.
+Edit the [custom resource](xilinx-operator-example/config/samples/xilinxtestoperators_v1alpha1_xilinxtestoperator.yaml) file to correspond to the correct FPGA card version.
 
 Then, build and push the operator image:[^1]
 

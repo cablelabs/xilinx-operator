@@ -1,7 +1,7 @@
 ---
 # vars file for xilinxtestoperator
 
-card_ver: u200  # choices are "vcu1525" or "u200"
+card_ver: '{{ card_ver }}'  # choices are "vcu1525" or "u200"
 
 driver_container: cablelabs/adrenaline_xilinx-fpga-rhel7
 example_pod_name: xilinx-test-pod
